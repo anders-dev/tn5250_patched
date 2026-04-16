@@ -914,12 +914,14 @@ void tn5250_display_interactive_addch(Tn5250Display* This, unsigned char ch) {
     int end_of_field = 0;
     int nextfieldprogressionid = 0;
 
+    /*** no protect for you
     if (field == NULL || tn5250_field_is_bypass(field)) {
         This->keystate = TN5250_KEYSTATE_PREHELP;
         This->keySRC = TN5250_KBDSRC_PROTECT;
         tn5250_display_inhibit(This);
         return;
     }
+        ***/
     /* Upcase the character if this is a monocase field. */
     if (tn5250_field_is_monocase(field) && isalpha(ch)) {
         ch = toupper(ch);
@@ -939,13 +941,15 @@ void tn5250_display_interactive_addch(Tn5250Display* This, unsigned char ch) {
         }
     }
 
-    /* Make sure this is a valid data character for this field type. */
+    /*** remove fieldtype check 
+     Make sure this is a valid data character for this field type. 
     if (!tn5250_field_valid_char(field, ch, &(This->keySRC))) {
         TN5250_LOG(("Inhibiting: invalid character for field type.\n"));
         This->keystate = TN5250_KEYSTATE_PREHELP;
         tn5250_display_inhibit(This);
         return;
     }
+    ***/
     /* Are we at the last character of the field? */
     if (tn5250_display_cursor_y(This) == tn5250_field_end_row(field) &&
         tn5250_display_cursor_x(This) == tn5250_field_end_col(field)) {
@@ -1624,14 +1628,14 @@ void tn5250_display_kf_field_exit(Tn5250Display* This) {
     Tn5250Field* field;
 
     field = tn5250_display_current_field(This);
-
+/** No protect 
     if (field == NULL || tn5250_field_is_bypass(field)) {
         This->keystate = TN5250_KEYSTATE_PREHELP;
         This->keySRC = TN5250_KBDSRC_PROTECT;
         tn5250_display_inhibit(This);
         return;
     }
-
+**/
     tn5250_display_field_pad_and_adjust(This, field);
 
     if (tn5250_field_is_auto_enter(field)) {
@@ -1660,14 +1664,14 @@ void tn5250_display_kf_field_plus(Tn5250Display* This) {
     TN5250_LOG(("Field+ entered.\n"));
 
     field = tn5250_display_current_field(This);
-
+/*** No protect 
     if (field == NULL || tn5250_field_is_bypass(field)) {
         This->keystate = TN5250_KEYSTATE_PREHELP;
         This->keySRC = TN5250_KBDSRC_PROTECT;
         tn5250_display_inhibit(This);
         return;
     }
-
+***/
     tn5250_display_field_pad_and_adjust(This, field);
 
     /* NOTE: Field+ should act like field exit on a non-numeric field. */
@@ -1788,13 +1792,14 @@ void tn5250_display_kf_dup(Tn5250Display* This) {
     unsigned char* data;
 
     field = tn5250_display_current_field(This);
+/*** No protect 
     if (field == NULL || tn5250_field_is_bypass(field)) {
         This->keystate = TN5250_KEYSTATE_PREHELP;
         This->keySRC = TN5250_KBDSRC_PROTECT;
         tn5250_display_inhibit(This);
         return;
     }
-
+***/
     tn5250_field_set_mdt(field);
 
     if (!tn5250_field_is_dup_enable(field)) {
@@ -1969,13 +1974,14 @@ void tn5250_display_clear_format_table(Tn5250Display* This) {
  *****/
 void tn5250_display_kf_backspace(Tn5250Display* This) {
     Tn5250Field* field = tn5250_display_current_field(This);
+/*** no protect 
     if (field == NULL) {
         This->keystate = TN5250_KEYSTATE_PREHELP;
         This->keySRC = TN5250_KBDSRC_PROTECT;
         tn5250_display_inhibit(This);
         return;
     }
-
+**/
     /* If in first position of field, set cursor position to last position
      * of previous field. */
     if (tn5250_display_cursor_x(This) == tn5250_field_start_col(field) &&
@@ -2135,7 +2141,8 @@ void tn5250_display_kf_backtab(Tn5250Display* This) {
  *****/
 void tn5250_display_kf_end(Tn5250Display* This) {
     Tn5250Field* field = tn5250_display_current_field(This);
-    if (field != NULL && !tn5250_field_is_bypass(field)) {
+/* no protect*/
+    if (field != NULL) {
         unsigned char* data = tn5250_display_field_data(This, field);
         int i = tn5250_field_length(field) - 1;
         int y = tn5250_field_start_row(field);
@@ -2220,8 +2227,8 @@ void tn5250_display_kf_home(Tn5250Display* This) {
  *****/
 void tn5250_display_kf_delete(Tn5250Display* This) {
     Tn5250Field* field = tn5250_display_current_field(This);
-
-    if (field == NULL || tn5250_field_is_bypass(field)) {
+/* no protect || tn5250_field_is_bypass(field)*/
+    if (field == NULL ) {
         This->keystate = TN5250_KEYSTATE_PREHELP;
         This->keySRC = TN5250_KBDSRC_PROTECT;
         tn5250_display_inhibit(This);
@@ -2399,7 +2406,8 @@ void tn5250_display_kf_nextfld(Tn5250Display* This) {
  *****/
 void tn5250_display_kf_fieldhome(Tn5250Display* This) {
     Tn5250Field* field = tn5250_display_current_field(This);
-    if (field != NULL && !tn5250_field_is_bypass(field)) {
+    /* No protect && !tn5250_field_is_bypass(field)*/
+    if (field != NULL ) {
         int y = tn5250_field_start_row(field);
         int x = tn5250_field_start_col(field);
         tn5250_display_set_cursor(This, y, x);
